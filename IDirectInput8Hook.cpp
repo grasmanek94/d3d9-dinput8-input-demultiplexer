@@ -1,9 +1,73 @@
+#include <iostream>
+#include <stdexcept>
+#include <vector>
+
 #include "proxydll.h"
 #include "IDirectInput8Hook.h"
+
+std::vector<GUID> keyboard_guids;
+GUID system_keyboard;
+
+BOOL CALLBACK staticEnumerateKeyboards(LPCDIDEVICEINSTANCE devInst, LPVOID pvRef)
+{
+	if (pvRef == NULL)
+	{
+		system_keyboard = devInst->guidInstance;
+	}
+	else
+	{
+		if (!IsEqualGUID(devInst->guidInstance, system_keyboard))
+		{
+			keyboard_guids.push_back(devInst->guidInstance);
+		}
+	}
+	return DIENUM_CONTINUE;
+}
 
 IDirectInput8Hook::IDirectInput8Hook(IDirectInput8 * dinput)
 {
 	m_dinput = dinput;
+	HRESULT result = m_dinput->EnumDevices(DI8DEVCLASS_KEYBOARD, &staticEnumerateKeyboards, 0, DIEDFL_ATTACHEDONLY);
+	if (FAILED(result))
+	{
+		OutputDebugString(L"1 Critical error: Unable to enumerate input devices!\r\n");
+		switch (result)
+		{
+		case DIERR_INVALIDPARAM:
+			OutputDebugString(L"DIERR_INVALIDPARAM\r\n");
+			break;
+		case DIERR_NOTINITIALIZED:
+			OutputDebugString(L"DIERR_NOTINITIALIZED\r\n");
+			break;
+
+		}
+		::ExitProcess(0);
+	}
+
+	result = m_dinput->EnumDevices(DI8DEVCLASS_KEYBOARD, &staticEnumerateKeyboards, this, DIEDFL_INCLUDEALIASES);
+	if (FAILED(result))
+	{
+		OutputDebugString(L"2 Critical error: Unable to enumerate input devices!\r\n");
+		switch (result)
+		{
+		case DIERR_INVALIDPARAM:
+			OutputDebugString(L"DIERR_INVALIDPARAM\r\n");
+			break;
+		case DIERR_NOTINITIALIZED:
+			OutputDebugString(L"DIERR_NOTINITIALIZED\r\n");
+			break;
+
+		}
+		::ExitProcess(0);
+	}
+
+	for (const auto& guid : keyboard_guids)
+	{
+		OLECHAR* guidString;
+		StringFromCLSID(guid, &guidString);
+		std::wcout << "IDirectInput8Hook kb device detected: " << guidString << std::endl;
+		::CoTaskMemFree(guidString);
+	}
 }
 
 HRESULT STDMETHODCALLTYPE IDirectInput8Hook::QueryInterface(REFIID riid, LPVOID * ppvObj)
