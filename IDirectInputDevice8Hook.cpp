@@ -116,7 +116,7 @@ HRESULT STDMETHODCALLTYPE IDirectInputDevice8Hook::RunControlPanel(HWND p0, DWOR
 
 HRESULT STDMETHODCALLTYPE IDirectInputDevice8Hook::Initialize(HINSTANCE p0, DWORD p1, REFGUID rguid)
 {
-	return m_pDIDevice->Initialize(p0, p1, rguid);
+	return m_pDIDevice->Initialize(p0, p1, (IsEqualGUID(rguid, GUID_SysKeyboard) ? m_GUID : rguid));
 }
 
 HRESULT STDMETHODCALLTYPE IDirectInputDevice8Hook::CreateEffect(REFGUID rguid, LPCDIEFFECT p1, LPDIRECTINPUTEFFECT * p2, LPUNKNOWN p3)
