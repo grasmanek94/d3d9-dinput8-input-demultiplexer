@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="myIDirect3D9.h" />
+    <ClInclude Include="myIDirect3DDevice9.h" />
+    <ClInclude Include="myIDirect3DSwapChain9.h" />
+    <ClInclude Include="proxydll.h" />
+    <ClInclude Include="d3d9.h" />
+    <ClInclude Include="d3dx9.h" />
+    <ClInclude Include="detours.h" />
+    <ClInclude Include="detver.h" />
+    <ClInclude Include="dxgihook.hxx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="myIDirect3DDevice9.cpp" />
+    <ClCompile Include="myIDirect3DSwapChain9.cpp" />
+    <ClCompile Include="proxydll.cpp" />
+    <ClCompile Include="myIDirect3D9.cpp" />
+    <ClCompile Include="disasm.cpp" />
+    <ClCompile Include="image.cpp" />
+    <ClCompile Include="modules.cpp" />
+    <ClCompile Include="creatwth.cpp" />
+    <ClCompile Include="detours.cpp" />
+    <ClCompile Include="dxgihook.cxx" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="proxydll.def" />
+  </ItemGroup>
+</Project>
