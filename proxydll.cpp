@@ -13,7 +13,6 @@ HINSTANCE				gl_hThisInstance;
 #pragma data_seg ()
 
 HINSTANCE				gl_dinput8_hOriginalDll;
-HINSTANCE				gl_dinput8base_hOriginalDll;
 
 WNDPROC		orig_wndproc;
 HWND			orig_wnd = 0;
@@ -121,8 +120,6 @@ IDirect3D9* WINAPI Direct3DCreate9(UINT SDKVersion)
 	{
 		LoadOriginalDll(L"\\d3d9.dll", gl_hOriginalDll); // looking for the "right d3d9.dll"
 		LoadOriginalDll(L"\\dinput8.dll", gl_dinput8_hOriginalDll);
-		gl_dinput8base_hOriginalDll = gl_dinput8_hOriginalDll;
-		//LoadOriginalDll(L"\\dinput8base.dll", gl_dinput8base_hOriginalDll);
 	}
 	
 	// Hooking IDirect3D Object from Original Library
@@ -169,7 +166,6 @@ void InitInstance(HANDLE hModule)
 	gl_pmyIDirect3DSwapChain9	= NULL;
 
 	gl_dinput8_hOriginalDll = NULL;
-	gl_dinput8base_hOriginalDll = NULL;
 
 	// Storing Instance handle into global var
 	gl_hThisInstance = (HINSTANCE)  hModule;
@@ -190,12 +186,6 @@ void ExitInstance()
 	{
 		::FreeLibrary(gl_dinput8_hOriginalDll);
 		gl_dinput8_hOriginalDll = NULL;
-	}
-
-	if (gl_dinput8base_hOriginalDll)
-	{
-		::FreeLibrary(gl_dinput8base_hOriginalDll);
-		gl_dinput8base_hOriginalDll = NULL;
 	}
 }
 

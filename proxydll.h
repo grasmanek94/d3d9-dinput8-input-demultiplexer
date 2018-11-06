@@ -23,4 +23,3 @@ void wndprochook_maybe_install(HWND wnd);
 extern D3DPRESENT_PARAMETERS pPresentParam;
 
 extern HINSTANCE				gl_dinput8_hOriginalDll;
-extern HINSTANCE				gl_dinput8base_hOriginalDll;

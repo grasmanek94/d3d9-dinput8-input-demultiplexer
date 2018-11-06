@@ -30,7 +30,7 @@ extern "C" HRESULT WINAPI MyDirectInput8Create(HINSTANCE hinst, DWORD dwVersion,
 void DInput8HookAttach()
 {
 	// Fetch the real function pointer
-	RealDirectInput8Create = (HRESULT(WINAPI *)(HINSTANCE, DWORD, REFIID, LPVOID*, LPUNKNOWN))GetProcAddress(gl_dinput8base_hOriginalDll, "DirectInput8Create");
+	RealDirectInput8Create = (HRESULT(WINAPI *)(HINSTANCE, DWORD, REFIID, LPVOID*, LPUNKNOWN))GetProcAddress(gl_dinput8_hOriginalDll, "DirectInput8Create");
 
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
