@@ -142,11 +142,9 @@ IDirect3D9* WINAPI Direct3DCreate9(UINT SDKVersion)
 	
 	HooksInstall();
 
-#if _DEBUG
 	AllocConsole();
 	BindCrtHandlesToStdHandles(true, true, true);
-	std::cout << "Direct3DCreate9" << std::endl;
-#endif
+	std::cout << "Focus keyboards here" << std::endl;
 
 	DInput8HookAttach();
 

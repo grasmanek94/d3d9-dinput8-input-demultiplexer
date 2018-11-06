@@ -1,32 +1,9 @@
-#include <iostream>
-
 #include"proxydll.h"
 #include "IDirectInputDevice8Hook.h"
 
-static bool mSpaceKeyState = false;
-static bool mLastSpaceKeyState = false;
-
-static GUID GUID_GamepadXboxOneWired = {
-	0x02FF045E, 0x0000, 0x0000,{ 0x00, 0x00, 0x50, 0x49, 0x44, 0x56, 0x49, 0x44 }
-};
-
-static GUID GUID_GamepadXbox360WirelessSteam = {
-	0x11FF28DE, 0x28DE, 0x0001,{ 0x00, 0x00, 0x50, 0x49, 0x44, 0x56, 0x49, 0x44 }
-};
-
-static GUID GUID_GamepadDragonRiseTwinShock = {
-	0x9C3F48C0, 0xAF01, 0x11E6,{ 0x80, 0x01, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00 }
-};
-
-static GUID GUID_GamepadNVidiaShieldGameStream = {
-	0xECBB3D3D, 0xC2EA, 0x4861,{ 0x98, 0x3F, 0xB3, 0xE1, 0x5B, 0xDC, 0x6C, 0x52 }
-};
-
-// TODO Add your own known gamepad GUIDs here!
-
 IDirectInputDevice8Hook::IDirectInputDevice8Hook(IDirectInput8 * dinput, IDirectInputDevice8 * dinputdevice, REFGUID guid)
 {
-	std::cout << "IDirectInputDevice8Hook::IDirectInputDevice8Hook" << std::endl;
+	OutputDebugString(L"IDirectInputDevice8Hook::IDirectInputDevice8Hook\r\n");
 	m_pDI = dinput;
 	m_pDIDevice = dinputdevice;
 	m_GUID = guid;
@@ -89,129 +66,7 @@ HRESULT STDMETHODCALLTYPE IDirectInputDevice8Hook::GetDeviceState(DWORD p0, LPVO
 {
 	// Forward call
 	HRESULT hResult = m_pDIDevice->GetDeviceState(p0, p1);
-	/*
-	// We've acquired gamepad data
-	if (SUCCEEDED(hResult) && (p0 == sizeof(DIJOYSTATE) || p0 == sizeof(DIJOYSTATE2)))
-	{
-		// Cast device state
-		LPDIJOYSTATE state = (LPDIJOYSTATE)p1;
 
-		// Log device state (uncomment these lines if you need to capture the button values before remapping them)
-		WCHAR message[2048];
-		wsprintf(message,
-			L"DIJOYSTATE:\n"
-			L"lRx = %u, lRy = %u, lRz = %u\n"
-			L"lX = %u, lY = %u, lZ = %u\n"
-			L"rgdwPOV[0] = %u, rgdwPOV[1] = %u, rgdwPOV[2] = %u, rgdwPOV[3] = %u\n"
-			L"rglSlider[0] = %u, rglSlider[1] = %u\n"
-			L"rgbButtons[0] = %u, rgbButtons[1] = %u, rgbButtons[2] = %u, rgbButtons[3] = %u\n"
-			L"rgbButtons[4] = %u, rgbButtons[5] = %u, rgbButtons[6] = %u, rgbButtons[7] = %u\n"
-			L"rgbButtons[8] = %u, rgbButtons[9] = %u, rgbButtons[10] = %u, rgbButtons[11] = %u\n"
-			L"rgbButtons[12] = %u, rgbButtons[13] = %u, rgbButtons[14] = %u, rgbButtons[15] = %u\n"
-			L"rgbButtons[16] = %u, rgbButtons[17] = %u, rgbButtons[18] = %u, rgbButtons[19] = %u\n"
-			L"rgbButtons[20] = %u, rgbButtons[21] = %u, rgbButtons[22] = %u, rgbButtons[23] = %u\n"
-			L"rgbButtons[24] = %u, rgbButtons[25] = %u, rgbButtons[26] = %u, rgbButtons[27] = %u\n"
-			L"rgbButtons[28] = %u, rgbButtons[29] = %u, rgbButtons[30] = %u, rgbButtons[31] = %u\n",
-			state->lRx, state->lRy, state->lRz,
-			state->lX, state->lY, state->lZ,
-			state->rgdwPOV[0], state->rgdwPOV[1], state->rgdwPOV[2], state->rgbButtons[3],
-			state->rglSlider[0], state->rglSlider[1],
-			state->rgbButtons[0], state->rgbButtons[1], state->rgbButtons[2], state->rgbButtons[3],
-			state->rgbButtons[4], state->rgbButtons[5], state->rgbButtons[6], state->rgbButtons[7],
-			state->rgbButtons[8], state->rgbButtons[9], state->rgbButtons[10], state->rgbButtons[11],
-			state->rgbButtons[12], state->rgbButtons[13], state->rgbButtons[14], state->rgbButtons[15],
-			state->rgbButtons[16], state->rgbButtons[17], state->rgbButtons[18], state->rgbButtons[19],
-			state->rgbButtons[20], state->rgbButtons[21], state->rgbButtons[22], state->rgbButtons[23],
-			state->rgbButtons[24], state->rgbButtons[25], state->rgbButtons[26], state->rgbButtons[26],
-			state->rgbButtons[28], state->rgbButtons[29], state->rgbButtons[30], state->rgbButtons[31]);
-		OutputDebugString(message);
-
-		// Log gamepad GUID (uncomment these lines if you need to capture your gamepad GUID)
-		wsprintf(message, L"Gamepad GUID: {%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}\n", m_GUID.Data1, m_GUID.Data2, m_GUID.Data3, m_GUID.Data4[0], m_GUID.Data4[1], m_GUID.Data4[2], m_GUID.Data4[3], m_GUID.Data4[4], m_GUID.Data4[5], m_GUID.Data4[6], m_GUID.Data4[7]);
-		OutputDebugString(message);
-
-		// Fix DragonRise controls
-		if (IsEqualGUID(m_GUID, GUID_GamepadDragonRiseTwinShock))
-		{
-			// Temporary byte variable
-			BYTE tmp[2];
-
-			// Square from 3 to 0
-			tmp[0] = state->rgbButtons[0];
-			state->rgbButtons[0] = state->rgbButtons[3];
-
-			// Triangle from 0 to 1
-			tmp[1] = state->rgbButtons[1];
-			state->rgbButtons[1] = tmp[0];
-
-			// Circle from 1 to 3
-			state->rgbButtons[3] = tmp[1];
-
-			// Swap start (9) and R3 (11)
-			state->rgbButtons[11] = state->rgbButtons[11] ^ state->rgbButtons[9];
-			state->rgbButtons[9] = state->rgbButtons[11] ^ state->rgbButtons[9];
-			state->rgbButtons[11] = state->rgbButtons[11] ^ state->rgbButtons[9];
-
-			// Swap select (8) and L3 (10)
-			state->rgbButtons[10] = state->rgbButtons[10] ^ state->rgbButtons[8];
-			state->rgbButtons[8] = state->rgbButtons[10] ^ state->rgbButtons[8];
-			state->rgbButtons[10] = state->rgbButtons[10] ^ state->rgbButtons[8];
-
-			// Swap L1 (6) and L2 (4)
-			state->rgbButtons[4] = state->rgbButtons[4] ^ state->rgbButtons[6];
-			state->rgbButtons[6] = state->rgbButtons[4] ^ state->rgbButtons[6];
-			state->rgbButtons[4] = state->rgbButtons[4] ^ state->rgbButtons[6];
-
-			// Swap R1 (7) and R2 (5)
-			state->rgbButtons[5] = state->rgbButtons[5] ^ state->rgbButtons[7];
-			state->rgbButtons[7] = state->rgbButtons[5] ^ state->rgbButtons[7];
-			state->rgbButtons[5] = state->rgbButtons[5] ^ state->rgbButtons[7];
-		}
-
-		// Fix Xbox360 / XBoxOne controls (Steam In-Home Streaming and NVidia GameStream both simulate different versions of this controller!)
-		else if (IsEqualGUID(m_GUID, GUID_GamepadXbox360WirelessSteam) || IsEqualGUID(m_GUID, GUID_GamepadNVidiaShieldGameStream) ||IsEqualGUID(m_GUID, GUID_GamepadXboxOneWired))
-		{
-			// Swap A and X button presses to match the expected button number
-			state->rgbButtons[0] = state->rgbButtons[0] ^ state->rgbButtons[2];
-			state->rgbButtons[2] = state->rgbButtons[0] ^ state->rgbButtons[2];
-			state->rgbButtons[0] = state->rgbButtons[0] ^ state->rgbButtons[2];
-
-			// Swap B and Y button presses to match the expected button number
-			state->rgbButtons[1] = state->rgbButtons[1] ^ state->rgbButtons[3];
-			state->rgbButtons[3] = state->rgbButtons[1] ^ state->rgbButtons[3];
-			state->rgbButtons[1] = state->rgbButtons[1] ^ state->rgbButtons[3];
-
-			// Translate back button presses
-			state->rgbButtons[10] = state->rgbButtons[6];
-
-			// Translate start button presses
-			state->rgbButtons[11] = state->rgbButtons[7];
-
-			// Translate L2 trigger presses
-			state->rgbButtons[6] = state->lZ >= 0 && state->lZ <= 126 ? 128 : 0;
-
-			// Translate R2 trigger presses
-			state->rgbButtons[7] = state->lZ >= -128 && state->lZ <= -2 ? 128 : 0;
-
-			// Translate horizontal axis of the right analog stick
-			state->lZ = state->lRx;
-
-			// Translate vertical axis of the right analog stick
-			state->lRz = state->lRy;
-		}
-
-		
-		// TODO This is where you would add additional controller mappings!
-		//else if (IsEqualGUID(m_GUID, GUID_GamepadYourNewShinyGamepadThatDoesntWorkRightYet))
-		//{
-			// Remap the buttons here!
-		//}
-	
-
-		// Hold the space button for as long as the start button is pressed (this game has no way of skipping through cutscenes via gamepad, it's ridiculous)
-		mSpaceKeyState = state->rgbButtons[11] != 0;
-	}
-	*/
 	return hResult;
 }
 
@@ -219,41 +74,7 @@ HRESULT STDMETHODCALLTYPE IDirectInputDevice8Hook::GetDeviceData(DWORD p0, LPDID
 {
 	// Forward call
 	HRESULT hResult = m_pDIDevice->GetDeviceData(p0, p1, p2, p3);
-	if (SUCCEEDED(hResult))
-	{
-		std::cout << "IDirectInputDevice8Hook::GetDeviceData" << std::endl;
-	}
-	/*
-	// We've acquired keyboard data
-	if (SUCCEEDED(hResult) && IsEqualGUID(m_GUID, GUID_SysKeyboard) && p1 != NULL && p0 == sizeof(DIDEVICEOBJECTDATA) && p2 != NULL)
-	{
-		// Virtual space key state has been changed
-		if (mSpaceKeyState != mLastSpaceKeyState)
-		{
-			// Keep track of data
-			//OutputDebugString(L"Virtual space key state has changed\n");
 
-			// Initialize new direct input device data object
-			memset(&p1[*p2], 0, sizeof(DIDEVICEOBJECTDATA));
-
-			// Set key state accordingly
-			p1[*p2].dwData = mSpaceKeyState ? 0x80 : 0;
-
-			// Set key to space
-			p1[*p2].dwOfs = DIK_SPACE;
-
-			// Hope nothing goes up in flames because we didn't set the sequence number or app object
-
-			// Increment sample count by 1
-			*p2 += 1;
-
-			// Update last space key state
-			mLastSpaceKeyState = mSpaceKeyState;
-		}
-	}
-
-	// Return result
-	*/
 	return hResult;
 }
 
@@ -269,6 +90,10 @@ HRESULT STDMETHODCALLTYPE IDirectInputDevice8Hook::SetEventNotification(HANDLE p
 
 HRESULT STDMETHODCALLTYPE IDirectInputDevice8Hook::SetCooperativeLevel(HWND p0, DWORD p1)
 {
+	// make devices work when not in focus
+	p1 &= ~DISCL_FOREGROUND;
+	p1 |= DISCL_BACKGROUND;
+
 	return m_pDIDevice->SetCooperativeLevel(p0, p1);
 }
 

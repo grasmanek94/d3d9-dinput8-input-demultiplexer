@@ -48,6 +48,7 @@ HRESULT STDMETHODCALLTYPE IDirectInput8Hook::EnumDevices(DWORD dwDevType, LPDIEN
 
 HRESULT STDMETHODCALLTYPE IDirectInput8Hook::GetDeviceStatus(REFGUID rguidInstance)
 {
+	OutputDebugString(L"GetDeviceStatus\r\n");
 	return m_dinput->GetDeviceStatus(rguidInstance);
 }
 
