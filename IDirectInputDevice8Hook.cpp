@@ -1,9 +1,18 @@
+#include <iostream>
 #include"proxydll.h"
 #include "IDirectInputDevice8Hook.h"
 
 IDirectInputDevice8Hook::IDirectInputDevice8Hook(IDirectInput8 * dinput, IDirectInputDevice8 * dinputdevice, REFGUID guid)
 {
+	OLECHAR* guidString;
+	StringFromCLSID(guid, &guidString);
+
+	std::wcout << "IDirectInputDevice8Hook: " << guidString << std::endl;
+
+	::CoTaskMemFree(guidString);
+	
 	OutputDebugString(L"IDirectInputDevice8Hook::IDirectInputDevice8Hook\r\n");
+
 	m_pDI = dinput;
 	m_pDIDevice = dinputdevice;
 	m_GUID = guid;
