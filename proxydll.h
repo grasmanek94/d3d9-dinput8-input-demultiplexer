@@ -26,3 +26,4 @@ extern D3DPRESENT_PARAMETERS pPresentParam;
 
 extern HINSTANCE				gl_dinput8_hOriginalDll;
 extern std::vector<GUID> keyboard_guids;
+extern GUID app_kb_guid;

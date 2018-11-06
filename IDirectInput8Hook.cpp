@@ -39,7 +39,7 @@ int ProcessCount(const wchar_t *processName)
 IDirectInput8Hook::IDirectInput8Hook(IDirectInput8 * dinput)
 {
 	m_dinput = dinput;
-	HRESULT result = m_dinput->EnumDevices(DI8DEVCLASS_KEYBOARD, &staticEnumerateKeyboards, this, DIEDFL_INCLUDEALIASES);
+	HRESULT result = m_dinput->EnumDevices(DI8DEVCLASS_KEYBOARD, &staticEnumerateKeyboards, this, DIEDFL_ATTACHEDONLY | DIEDFL_INCLUDEALIASES);
 	if (FAILED(result))
 	{
 		OutputDebugString(L"2 Critical error: Unable to enumerate input devices!\r\n");
@@ -54,6 +54,13 @@ IDirectInput8Hook::IDirectInput8Hook(IDirectInput8 * dinput)
 
 		}
 		::ExitProcess(0);
+	}
+
+	{
+		OLECHAR* guidString;
+		StringFromCLSID(GUID_SysKeyboard, &guidString);
+		std::wcout << "IDirectInput8Hook system kb: " << guidString << std::endl;
+		::CoTaskMemFree(guidString);
 	}
 
 	for (const auto& guid : keyboard_guids)

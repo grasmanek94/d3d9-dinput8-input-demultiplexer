@@ -92,9 +92,23 @@ HRESULT STDMETHODCALLTYPE IDirectInputDevice8Hook::SetEventNotification(HANDLE p
 
 HRESULT STDMETHODCALLTYPE IDirectInputDevice8Hook::SetCooperativeLevel(HWND p0, DWORD p1)
 {
-	// make devices work when not in focus
-	p1 &= ~DISCL_FOREGROUND;
-	p1 |= DISCL_BACKGROUND;
+
+	// make keyboards work when not in focus
+
+	if (IsEqualGUID(m_GUID, GUID_SysKeyboard))
+	{
+		p1 &= ~DISCL_FOREGROUND;
+		p1 |= DISCL_BACKGROUND;
+
+	}
+	for (const auto& guid : keyboard_guids)
+	{
+		if (IsEqualGUID(guid, m_GUID))
+		{
+			p1 &= ~DISCL_FOREGROUND;
+			p1 |= DISCL_BACKGROUND;
+		}
+	}
 
 	return m_pDIDevice->SetCooperativeLevel(p0, p1);
 }
