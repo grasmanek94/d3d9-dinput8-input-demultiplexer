@@ -58,14 +58,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(BOOST_PATH);$(WindowsSDK_IncludePath);$(VC_IncludePath);$(DXSDK_DIR)Include\;$(IncludePath)</IncludePath>
+    <OutDir>Z:\Game\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='standalone_test|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(BOOST_PATH);$(WindowsSDK_IncludePath);$(VC_IncludePath);$(DXSDK_DIR)Include\;$(IncludePath)</IncludePath>
+    <OutDir>Z:\Game\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(BOOST_PATH);$(WindowsSDK_IncludePath);$(VC_IncludePath);$(DXSDK_DIR)Include\;$(IncludePath)</IncludePath>
+    <OutDir>Z:\Game\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -79,6 +82,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>proxydll.def</ModuleDefinitionFile>
+      <AdditionalDependencies>dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='standalone_test|Win32'">
@@ -96,6 +100,7 @@
       <ModuleDefinitionFile>proxydll.def</ModuleDefinitionFile>
       <EntryPointSymbol>
       </EntryPointSymbol>
+      <AdditionalDependencies>dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -114,6 +119,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <ModuleDefinitionFile>proxydll.def</ModuleDefinitionFile>
+      <AdditionalDependencies>dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -121,13 +127,15 @@
     <ClInclude Include="d3dx9.h" />
     <ClInclude Include="detours.h" />
     <ClInclude Include="detver.h" />
-    <ClInclude Include="dxgihook.hxx" />
+    <ClInclude Include="IDirectInput8Hook.h" />
+    <ClInclude Include="IDirectInputDevice8Hook.h" />
     <ClInclude Include="myIDirect3D9.h" />
     <ClInclude Include="myIDirect3DDevice9.h" />
     <ClInclude Include="myIDirect3DSwapChain9.h" />
     <ClInclude Include="proxydll.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="bindconsole.cxx" />
     <ClCompile Include="creatwth.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='standalone_test|Win32'">NotUsing</PrecompiledHeader>
@@ -138,14 +146,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='standalone_test|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="dinput8hook.cpp" />
     <ClCompile Include="disasm.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='standalone_test|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="dxgihook.cxx">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='standalone_test|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="IDirectInput8Hook.cpp" />
+    <ClCompile Include="IDirectInputDevice8Hook.cpp" />
     <ClCompile Include="image.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='standalone_test|Win32'">NotUsing</PrecompiledHeader>

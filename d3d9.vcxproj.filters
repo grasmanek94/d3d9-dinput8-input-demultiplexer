@@ -9,7 +9,8 @@
     <ClInclude Include="d3dx9.h" />
     <ClInclude Include="detours.h" />
     <ClInclude Include="detver.h" />
-    <ClInclude Include="dxgihook.hxx" />
+    <ClInclude Include="IDirectInputDevice8Hook.h" />
+    <ClInclude Include="IDirectInput8Hook.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="myIDirect3DDevice9.cpp" />
@@ -21,7 +22,10 @@
     <ClCompile Include="modules.cpp" />
     <ClCompile Include="creatwth.cpp" />
     <ClCompile Include="detours.cpp" />
-    <ClCompile Include="dxgihook.cxx" />
+    <ClCompile Include="IDirectInputDevice8Hook.cpp" />
+    <ClCompile Include="IDirectInput8Hook.cpp" />
+    <ClCompile Include="dinput8hook.cpp" />
+    <ClCompile Include="bindconsole.cxx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="proxydll.def" />
