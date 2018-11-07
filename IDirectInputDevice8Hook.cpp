@@ -9,6 +9,7 @@ IDirectInputDevice8Hook::IDirectInputDevice8Hook(IDirectInput8 * dinput, IDirect
 	m_pDI = dinput;
 	m_pDIDevice = dinputdevice;
 	m_GUID = guid;
+	is_keyboard = IsEqualGUID(GUID_SysKeyboard, guid);
 }
 
 /*** IUnknown methods ***/
@@ -94,13 +95,11 @@ HRESULT STDMETHODCALLTYPE IDirectInputDevice8Hook::SetEventNotification(HANDLE p
 
 HRESULT STDMETHODCALLTYPE IDirectInputDevice8Hook::SetCooperativeLevel(HWND p0, DWORD p1)
 {
-
 	// make keyboards work when not in focus
-	if (IsEqualGUID(m_GUID, GUID_SysKeyboard))
+	if (is_keyboard)
 	{
 		p1 &= ~DISCL_FOREGROUND;
 		p1 |= DISCL_BACKGROUND;
-
 	}
 
 	return m_pDIDevice->SetCooperativeLevel(p0, p1);

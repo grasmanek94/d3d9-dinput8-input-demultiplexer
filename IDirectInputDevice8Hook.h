@@ -9,6 +9,7 @@ private:
 	IDirectInput8 * m_pDI;
 	IDirectInputDevice8 * m_pDIDevice;
 	GUID m_GUID;
+	bool is_keyboard;
 
 public:
 	IDirectInputDevice8Hook(IDirectInput8 * dinput, IDirectInputDevice8 * dinputdevice, REFGUID guid);
