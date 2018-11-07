@@ -67,6 +67,7 @@ HRESULT STDMETHODCALLTYPE IDirectInputDevice8Hook::Unacquire()
 HRESULT STDMETHODCALLTYPE IDirectInputDevice8Hook::GetDeviceState(DWORD p0, LPVOID p1)
 {
 	// Forward call
+
 	HRESULT hResult = m_pDIDevice->GetDeviceState(p0, p1);
 
 	return hResult;
@@ -75,6 +76,7 @@ HRESULT STDMETHODCALLTYPE IDirectInputDevice8Hook::GetDeviceState(DWORD p0, LPVO
 HRESULT STDMETHODCALLTYPE IDirectInputDevice8Hook::GetDeviceData(DWORD p0, LPDIDEVICEOBJECTDATA p1, LPDWORD p2, DWORD p3)
 {
 	// Forward call
+
 	HRESULT hResult = m_pDIDevice->GetDeviceData(p0, p1, p2, p3);
 
 	return hResult;
@@ -94,20 +96,11 @@ HRESULT STDMETHODCALLTYPE IDirectInputDevice8Hook::SetCooperativeLevel(HWND p0, 
 {
 
 	// make keyboards work when not in focus
-
 	if (IsEqualGUID(m_GUID, GUID_SysKeyboard))
 	{
 		p1 &= ~DISCL_FOREGROUND;
 		p1 |= DISCL_BACKGROUND;
 
-	}
-	for (const auto& guid : keyboard_guids)
-	{
-		if (IsEqualGUID(guid, m_GUID))
-		{
-			p1 &= ~DISCL_FOREGROUND;
-			p1 |= DISCL_BACKGROUND;
-		}
 	}
 
 	return m_pDIDevice->SetCooperativeLevel(p0, p1);

@@ -25,5 +25,4 @@ void wndprochook_maybe_install(HWND wnd);
 extern D3DPRESENT_PARAMETERS pPresentParam;
 
 extern HINSTANCE				gl_dinput8_hOriginalDll;
-extern std::vector<GUID> keyboard_guids;
-extern GUID app_kb_guid;
+extern int chosen_kb_idx;

@@ -7,17 +7,7 @@
 
 #include <tlhelp32.h>
 
-std::vector<GUID> keyboard_guids;
-GUID app_kb_guid = GUID_SysKeyboard;
-
-BOOL CALLBACK staticEnumerateKeyboards(LPCDIDEVICEINSTANCE devInst, LPVOID pvRef)
-{
-	if (!IsEqualGUID(devInst->guidInstance, GUID_SysKeyboard))
-	{
-		keyboard_guids.push_back(devInst->guidInstance);
-	}
-	return DIENUM_CONTINUE;
-}
+int chosen_kb_idx = -1;
 
 int ProcessCount(const wchar_t *processName)
 {
@@ -39,57 +29,13 @@ int ProcessCount(const wchar_t *processName)
 IDirectInput8Hook::IDirectInput8Hook(IDirectInput8 * dinput)
 {
 	m_dinput = dinput;
-	HRESULT result = m_dinput->EnumDevices(DI8DEVCLASS_KEYBOARD, &staticEnumerateKeyboards, this, DIEDFL_ATTACHEDONLY | DIEDFL_INCLUDEALIASES);
-	if (FAILED(result))
-	{
-		OutputDebugString(L"2 Critical error: Unable to enumerate input devices!\r\n");
-		switch (result)
-		{
-		case DIERR_INVALIDPARAM:
-			OutputDebugString(L"DIERR_INVALIDPARAM\r\n");
-			break;
-		case DIERR_NOTINITIALIZED:
-			OutputDebugString(L"DIERR_NOTINITIALIZED\r\n");
-			break;
-
-		}
-		::ExitProcess(0);
-	}
-
-	{
-		OLECHAR* guidString;
-		StringFromCLSID(GUID_SysKeyboard, &guidString);
-		std::wcout << "IDirectInput8Hook system kb: " << guidString << std::endl;
-		::CoTaskMemFree(guidString);
-	}
-
-	for (const auto& guid : keyboard_guids)
-	{
-		OLECHAR* guidString;
-		StringFromCLSID(guid, &guidString);
-		std::wcout << "IDirectInput8Hook kb device detected: " << guidString << std::endl;
-		::CoTaskMemFree(guidString);
-	}
 
 	TCHAR szFileName[MAX_PATH + 1];
 	GetModuleFileName(NULL, szFileName, MAX_PATH + 1);
 	std::wstring wsFileName(szFileName);
 	wsFileName = wsFileName.substr(wsFileName.find_last_of('\\') + 1);
 
-	int id = ProcessCount(wsFileName.c_str()) - 1;
-	if (id >= 0 && id < keyboard_guids.size())
-	{
-		app_kb_guid = keyboard_guids[id];
-
-		OLECHAR* guidString;
-		StringFromCLSID(app_kb_guid, &guidString);
-		std::wcout << "IDirectInput8Hook::CreateDevice selected device: " << guidString << std::endl;
-		::CoTaskMemFree(guidString);
-	}
-	else
-	{
-		std::wcout << "IDirectInput8Hook::CreateDevice No suitable device for " << id << " " << wsFileName.c_str() << std::endl;
-	}
+	chosen_kb_idx = ProcessCount(wsFileName.c_str()) - 1;
 }
 
 HRESULT STDMETHODCALLTYPE IDirectInput8Hook::QueryInterface(REFIID riid, LPVOID * ppvObj)
@@ -116,18 +62,13 @@ ULONG STDMETHODCALLTYPE IDirectInput8Hook::Release()
 HRESULT STDMETHODCALLTYPE IDirectInput8Hook::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE8W * lplpDirectInputDevice, LPUNKNOWN pUknOuter)
 {
 	OutputDebugString(L"CreateDevice Hook called\n");
-	GUID selected_guid = rguid;
-	if (IsEqualGUID(rguid, GUID_SysKeyboard))
-	{
-		selected_guid = app_kb_guid;
-	}
 
 	// Create the dinput device
-	HRESULT hr = m_dinput->CreateDevice(selected_guid, lplpDirectInputDevice, pUknOuter);
+	HRESULT hr = m_dinput->CreateDevice(rguid, lplpDirectInputDevice, pUknOuter);
 
 	if (SUCCEEDED(hr))
 		// Create the proxy device
-		*lplpDirectInputDevice = new IDirectInputDevice8Hook(this, *lplpDirectInputDevice, selected_guid);
+		*lplpDirectInputDevice = new IDirectInputDevice8Hook(this, *lplpDirectInputDevice, rguid);
 
 	return hr;
 }
@@ -140,7 +81,7 @@ HRESULT STDMETHODCALLTYPE IDirectInput8Hook::EnumDevices(DWORD dwDevType, LPDIEN
 HRESULT STDMETHODCALLTYPE IDirectInput8Hook::GetDeviceStatus(REFGUID rguidInstance)
 {
 	OutputDebugString(L"GetDeviceStatus\r\n");
-	return m_dinput->GetDeviceStatus((IsEqualGUID(rguidInstance, GUID_SysKeyboard) ? app_kb_guid : rguidInstance));
+	return m_dinput->GetDeviceStatus(rguidInstance);
 }
 
 HRESULT STDMETHODCALLTYPE IDirectInput8Hook::RunControlPanel(HWND hwndOwner, DWORD dwFlags)
@@ -155,13 +96,7 @@ HRESULT STDMETHODCALLTYPE IDirectInput8Hook::Initialize(HINSTANCE hinst, DWORD d
 
 HRESULT STDMETHODCALLTYPE IDirectInput8Hook::FindDevice(REFGUID rguidClass, LPCWSTR ptszName, LPGUID pguidInstance)
 {
-	HRESULT result = m_dinput->FindDevice(rguidClass, ptszName, pguidInstance);
-	if (pguidInstance != nullptr && IsEqualGUID(*pguidInstance, GUID_SysKeyboard))
-	{
-		*pguidInstance = app_kb_guid;
-		OutputDebugString(L"FindDevice changed\r\n");
-	}
-	return result;
+	return m_dinput->FindDevice(rguidClass, ptszName, pguidInstance);
 }
 
 HRESULT STDMETHODCALLTYPE IDirectInput8Hook::EnumDevicesBySemantics(LPCWSTR ptszUserName, LPDIACTIONFORMATW lpdiActionFormat, LPDIENUMDEVICESBYSEMANTICSCBW lpCallback, LPVOID pvRef, DWORD dwFlags)
